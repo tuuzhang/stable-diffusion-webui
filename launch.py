@@ -34,10 +34,12 @@ def main():
 
     launch_utils.startup_timer.record("initial startup")
 
+    # 准备环境
     with launch_utils.startup_timer.subcategory("prepare environment"):
         if not args.skip_prepare_environment:
             prepare_environment()
 
+    # Run
     if args.test_server:
         configure_for_tests()
 
@@ -45,4 +47,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("-------------------- main launch !!!")
     main()

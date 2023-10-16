@@ -712,12 +712,15 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
     stored_opts = {k: opts.data[k] for k in p.override_settings.keys()}
 
     try:
-        # if no checkpoint override or the override checkpoint can't be found, remove override entry and load opts checkpoint
-        # and if after running refiner, the refiner model is not unloaded - webui swaps back to main model here, if model over is present it will be reloaded afterwards
+        # if no checkpoint override or the override checkpoint can't be found, 
+        # remove override entry and load opts checkpoint and if after running refiner, 
+        # the refiner model is not unloaded - webui swaps back to main model here, 
+        # if model over is present it will be reloaded afterwards
         if sd_models.checkpoint_aliases.get(p.override_settings.get('sd_model_checkpoint')) is None:
             p.override_settings.pop('sd_model_checkpoint', None)
             sd_models.reload_model_weights()
 
+        # 加载sd模型和vae模型
         for k, v in p.override_settings.items():
             opts.set(k, v, is_api=True, run_callbacks=False)
 
@@ -746,7 +749,11 @@ def process_images(p: StableDiffusionProcessing) -> Processed:
 
 
 def process_images_inner(p: StableDiffusionProcessing) -> Processed:
-    """this is the main loop that both txt2img and img2img use; it calls func_init once inside all the scopes and func_sample once per batch"""
+    """
+    返回Processed
+    this is the main loop that both txt2img and img2img use; 
+    it calls func_init once inside all the scopes and func_sample once per batch
+    """
 
     if isinstance(p.prompt, list):
         assert(len(p.prompt) > 0)
@@ -1133,10 +1140,11 @@ class StableDiffusionProcessingTxt2Img(StableDiffusionProcessing):
             if self.hr_upscaler is not None:
                 self.extra_generation_params["Hires upscaler"] = self.hr_upscaler
 
+    # 定义采样器
     def sample(self, conditioning, unconditional_conditioning, seeds, subseeds, subseed_strength, prompts):
         self.sampler = sd_samplers.create_sampler(self.sampler_name, self.sd_model)
 
-        x = self.rng.next()
+        x = self.rng.next() # 定义随机噪声
         samples = self.sampler.sample(self, x, conditioning, unconditional_conditioning, image_conditioning=self.txt2img_image_conditioning(x))
         del x
 

@@ -13,6 +13,7 @@ if %ERRORLEVEL% == 0 goto :check_pip
 echo Couldn't launch python
 goto :show_stdout_stderr
 
+echo Run_check_pip
 :check_pip
 %PYTHON% -mpip --help >tmp/stdout.txt 2>tmp/stderr.txt
 if %ERRORLEVEL% == 0 goto :start_venv
@@ -22,6 +23,7 @@ if %ERRORLEVEL% == 0 goto :start_venv
 echo Couldn't install pip
 goto :show_stdout_stderr
 
+echo Run_start_venv
 :start_venv
 if ["%VENV_DIR%"] == ["-"] goto :skip_venv
 if ["%SKIP_VENV%"] == ["1"] goto :skip_venv
@@ -36,25 +38,30 @@ if %ERRORLEVEL% == 0 goto :activate_venv
 echo Unable to create venv in directory "%VENV_DIR%"
 goto :show_stdout_stderr
 
+echo Run_activate_venv
 :activate_venv
 set PYTHON="%VENV_DIR%\Scripts\Python.exe"
 echo venv %PYTHON%
 
+echo Run_skip_venv
 :skip_venv
 if [%ACCELERATE%] == ["True"] goto :accelerate
 goto :launch
 
+echo Run_accelerate
 :accelerate
 echo Checking for accelerate
 set ACCELERATE="%VENV_DIR%\Scripts\accelerate.exe"
 if EXIST %ACCELERATE% goto :accelerate_launch
 
+echo Run_launch
 :launch
 %PYTHON% launch.py %*
 if EXIST tmp/restart goto :skip_venv
 pause
 exit /b
 
+echo Run_accelerate_launch
 :accelerate_launch
 echo Accelerating
 %ACCELERATE% launch --num_cpu_threads_per_process=6 launch.py
@@ -73,6 +80,7 @@ echo.
 echo stdout:
 type tmp\stdout.txt
 
+echo Run_show_stderr
 :show_stderr
 for /f %%i in ("tmp\stderr.txt") do set size=%%~zi
 if %size% equ 0 goto :show_stderr

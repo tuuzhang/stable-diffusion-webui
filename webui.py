@@ -54,14 +54,19 @@ def webui():
     from modules import shared, ui_tempdir, script_callbacks, ui, progress, ui_extra_networks
 
     while 1:
+        """
+        通过UI获取参数设置
+        """
         if shared.opts.clean_temp_dir_at_start:
+            print("-------------------- cleanup temp dir")
             ui_tempdir.cleanup_tmpdr()
             startup_timer.record("cleanup temp dir")
 
         script_callbacks.before_ui_callback()
         startup_timer.record("scripts before_ui_callback")
 
-        shared.demo = ui.create_ui()
+        print("-------------------- Create UI")
+        shared.demo = ui.create_ui()        # 构建UI界面
         startup_timer.record("create ui")
 
         if not cmd_opts.no_gradio_queue:

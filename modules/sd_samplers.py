@@ -32,6 +32,7 @@ def create_sampler(name, model):
     if model.is_sdxl and config.options.get("no_sdxl", False):
         raise Exception(f"Sampler {config.name} is not supported for SDXL")
 
+    # 根据name读取配置构建采样器
     sampler = config.constructor(model)
     sampler.config = config
 

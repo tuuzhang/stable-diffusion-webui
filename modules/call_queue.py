@@ -91,6 +91,7 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
             elapsed_text = f"{elapsed_m} min. "+elapsed_text
 
         if run_memmon:
+            """获取cpu时间、内存、显存等性能信息"""
             mem_stats = {k: -(v//-(1024*1024)) for k, v in shared.mem_mon.stop().items()}
             active_peak = mem_stats['active_peak']
             reserved_peak = mem_stats['reserved_peak']

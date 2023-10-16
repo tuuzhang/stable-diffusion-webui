@@ -78,6 +78,7 @@ def initialize():
 def initialize_rest(*, reload_script_modules=False):
     """
     Called both from initialize() and when reloading the webui.
+    Check相应的模型, 若无则根据对应的已存储的地址进行download
     """
     from modules.shared_cmd_options import cmd_opts
 

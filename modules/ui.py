@@ -1,3 +1,7 @@
+"""
+UI Create, based gradio
+"""
+
 import datetime
 import mimetypes
 import os
@@ -170,7 +174,12 @@ def update_token_counter(text, steps):
 
 
 class Toprow:
-    """Creates a top row UI with prompts, generate button, styles, extra little buttons for things, and enables some functionality related to their operation"""
+    """
+    Creates a top row UI with prompts, generate button, 
+    styles, extra little buttons for things, and enables 
+    some functionality related to their operation
+    "Generate"Buttom响应函数
+    """
 
     def __init__(self, is_img2img):
         id_part = "img2img" if is_img2img else "txt2img"
@@ -315,9 +324,13 @@ def create_override_settings_dropdown(tabname, row):
 
 
 def create_ui():
+    """
+    UI 构建, 从此函数可以追踪到相应组件对应的函数入口
+    """
     import modules.img2img
     import modules.txt2img
 
+    # 从json文件文件中获取配置(包括更新界面语言)
     reload_javascript()
 
     parameters_copypaste.reset()
@@ -326,6 +339,7 @@ def create_ui():
     scripts.scripts_txt2img.initialize_scripts(is_img2img=False)
 
     with gr.Blocks(analytics_enabled=False) as txt2img_interface:
+        "文生图-txt2img"
         toprow = Toprow(is_img2img=False)
 
         dummy_component = gr.Label(visible=False)
@@ -434,6 +448,7 @@ def create_ui():
 
             txt2img_gallery, generation_info, html_info, html_log = create_output_panel("txt2img", opts.outdir_txt2img_samples)
 
+            """通过wrap_gradio_gpu_call函数进行参数包裹, 实际调用-modules.txt2img.txt2img方法"""
             txt2img_args = dict(
                 fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
                 _js="submit",

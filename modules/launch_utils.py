@@ -1,3 +1,7 @@
+"""
+webui.py主要实现
+"""
+
 # this scripts installs necessary requirements and launches main program in webui.py
 import logging
 import re
@@ -31,6 +35,9 @@ if 'GRADIO_ANALYTICS_ENABLED' not in os.environ:
 
 
 def check_python_version():
+    """
+    Check Python版本
+    """
     is_windows = platform.system() == "Windows"
     major = sys.version_info.major
     minor = sys.version_info.minor
@@ -57,8 +64,7 @@ You can download 3.10 Python from here: https://www.python.org/downloads/release
 
 {"Alternatively, use a binary release of WebUI: https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases" if is_windows else ""}
 
-Use --skip-python-version-check to suppress this warning.
-""")
+Use --skip-python-version-check to suppress this warning.""")
 
 
 @lru_cache()
@@ -308,8 +314,20 @@ def requirements_met(requirements_file):
 
 
 def prepare_environment():
+    """
+    安装相关环境
+    """
+    print("-------------------- prepare_environment")
+
+    # pytorch-CUDA
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu118")
-    torch_command = os.environ.get('TORCH_COMMAND', f"pip install torch==2.0.1 torchvision==0.15.2 --extra-index-url {torch_index_url}")
+    # torch_command = os.environ.get('TORCH_COMMAND', f"pip install torch==2.0.1 torchvision==0.15.2 --extra-index-url {torch_index_url}")
+    
+    # pytorch-cpu
+    torch_command = os.environ.get('TORCH_COMMAND', f"pip install torch torchvision torchaudio")   
+    
+
+    # 依赖库列表txt
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
     xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.20')
@@ -335,6 +353,7 @@ def prepare_environment():
     except OSError:
         pass
 
+    # Check python版本
     if not args.skip_python_version_check:
         check_python_version()
 
@@ -348,6 +367,7 @@ def prepare_environment():
     print(f"Version: {tag}")
     print(f"Commit hash: {commit}")
 
+    # check Pytorch安装环境
     if args.reinstall_torch or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
         startup_timer.record("install torch")
@@ -359,6 +379,7 @@ def prepare_environment():
         )
     startup_timer.record("torch GPU test")
 
+    # Check各组件
     if not is_installed("clip"):
         run_pip(f"install {clip_package}", "clip")
         startup_timer.record("install clip")
@@ -377,6 +398,7 @@ def prepare_environment():
 
     os.makedirs(os.path.join(script_path, dir_repos), exist_ok=True)
 
+    # git clone相应库
     git_clone(stable_diffusion_repo, repo_dir('stable-diffusion-stability-ai'), "Stable Diffusion", stable_diffusion_commit_hash)
     git_clone(stable_diffusion_xl_repo, repo_dir('generative-models'), "Stable Diffusion XL", stable_diffusion_xl_commit_hash)
     git_clone(k_diffusion_repo, repo_dir('k-diffusion'), "K-diffusion", k_diffusion_commit_hash)
@@ -424,10 +446,17 @@ def configure_for_tests():
     if "--disable-nan-check" not in sys.argv:
         sys.argv.append("--disable-nan-check")
 
-    os.environ['COMMANDLINE_ARGS'] = ""
+    # os.environ['COMMANDLINE_ARGS'] = ""
+    """
+    添加相关参数args, 控制生成(去除cuda安装测试; 使用cpu计算;)
+    """
+    os.environ['COMMANDLINE_ARGS'] = "--skip-torch-cuda-test --no-half --use-cpu"
+
 
 
 def start():
+    print("-------------------- launch_utils.start")
+    
     print(f"Launching {'API server' if '--nowebui' in sys.argv else 'Web UI'} with arguments: {' '.join(sys.argv[1:])}")
     import webui
     if '--nowebui' in sys.argv:
