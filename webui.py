@@ -157,6 +157,8 @@ if __name__ == "__main__":
     from modules.shared_cmd_options import cmd_opts
 
     if cmd_opts.nowebui:
+        print("-------- api_only")
         api_only()
     else:
+        print("-------- webui")
         webui()
